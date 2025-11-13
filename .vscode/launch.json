@@ -1,0 +1,13 @@
+{
+  "version": "0.2.0",
+  "configurations": [
+    {
+      "type": "chrome",
+      "request": "launch",
+      "name": "routed-anecdotes: Launch Chrome",
+      "url": "http://localhost:5173",
+      "webRoot": "${workspaceFolder}/routed-anecdotes",
+      "sourceMaps": true
+    }
+  ]
+}
