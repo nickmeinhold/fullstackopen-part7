@@ -15,6 +15,13 @@ const CreateNew = ({ addNew }) => {
   const authorField = useField("text");
   const infoField = useField("text");
 
+  const handleReset = (e) => {
+    e.preventDefault();
+    contentField.reset();
+    authorField.reset();
+    infoField.reset();
+  };
+
   return (
     <div>
       <h2>create a new anecdote</h2>
@@ -31,7 +38,12 @@ const CreateNew = ({ addNew }) => {
           url for more info
           <input {...infoField} />
         </div>
-        <button>create</button>
+        <div>
+          <button type="submit">create</button>
+          <button type="button" onClick={handleReset}>
+            reset
+          </button>
+        </div>
       </form>
     </div>
   );
