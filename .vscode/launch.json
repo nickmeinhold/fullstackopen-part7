@@ -8,6 +8,14 @@
       "url": "http://localhost:5173",
       "webRoot": "${workspaceFolder}/routed-anecdotes",
       "sourceMaps": true
+    },
+    {
+      "type": "chrome",
+      "request": "launch",
+      "name": "country-hook: Launch Chrome",
+      "url": "http://localhost:5173",
+      "webRoot": "${workspaceFolder}/country-hook",
+      "sourceMaps": true
     }
   ]
 }
