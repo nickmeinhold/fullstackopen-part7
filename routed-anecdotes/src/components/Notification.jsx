@@ -5,6 +5,7 @@ const Notification = ({ message }) => {
 
   const style = {
     border: "solid",
+    borderColor: "red",
     padding: 10,
     borderWidth: 1,
     marginBottom: 10,
