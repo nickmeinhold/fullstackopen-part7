@@ -1,25 +1,25 @@
 import { useField } from "../hooks";
 
 const CreateNew = ({ addNew }) => {
+  const content = useField("text");
+  const author = useField("text");
+  const info = useField("text");
+
   const handleSubmit = (e) => {
     e.preventDefault();
     addNew({
-      content: contentField.value,
-      author: authorField.value,
-      info: infoField.value,
+      content: content.input.value,
+      author: author.input.value,
+      info: info.input.value,
       votes: 0,
     });
   };
 
-  const contentField = useField("text");
-  const authorField = useField("text");
-  const infoField = useField("text");
-
   const handleReset = (e) => {
     e.preventDefault();
-    contentField.reset();
-    authorField.reset();
-    infoField.reset();
+    content.reset();
+    author.reset();
+    info.reset();
   };
 
   return (
@@ -28,15 +28,15 @@ const CreateNew = ({ addNew }) => {
       <form onSubmit={handleSubmit}>
         <div>
           content
-          <input {...contentField} />
+          <input {...content.input} />
         </div>
         <div>
           author
-          <input {...authorField} />
+          <input {...author.input} />
         </div>
         <div>
           url for more info
-          <input {...infoField} />
+          <input {...info.input} />
         </div>
         <div>
           <button type="submit">create</button>
