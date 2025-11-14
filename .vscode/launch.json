@@ -16,6 +16,14 @@
       "url": "http://localhost:5173",
       "webRoot": "${workspaceFolder}/country-hook",
       "sourceMaps": true
+    },
+    {
+      "type": "chrome",
+      "request": "launch",
+      "name": "bloglist: Launch Chrome",
+      "url": "http://localhost:5173",
+      "webRoot": "${workspaceFolder}/bloglist",
+      "sourceMaps": true
     }
   ]
 }
