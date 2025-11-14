@@ -1,31 +1,26 @@
 import { Link } from "react-router-dom";
+import { AppBar, Toolbar, Button, Typography } from "@mui/material";
 
 const Navigation = ({ user, handleLogout }) => {
-  const padding = {
-    paddingRight: 5,
-  };
-
-  const navStyle = {
-    backgroundColor: "#e0e0e0",
-    padding: "10px",
-    marginBottom: "10px",
-  };
-
   return (
-    <div style={navStyle}>
-      <Link to="/" style={padding}>
-        blogs
-      </Link>
-      <Link to="/users" style={padding}>
-        users
-      </Link>
-      {user && (
-        <span>
-          <em>{user.name}</em> logged in{" "}
-          <button onClick={handleLogout}>logout</button>
-        </span>
-      )}
-    </div>
+    <AppBar position="static">
+      <Toolbar>
+        <Button color="inherit" component={Link} to="/">
+          blogs
+        </Button>
+        <Button color="inherit" component={Link} to="/users">
+          users
+        </Button>
+        {user && (
+          <Typography variant="body1" sx={{ marginLeft: "auto" }}>
+            <em>{user.name}</em> logged in{" "}
+            <Button color="inherit" onClick={handleLogout}>
+              logout
+            </Button>
+          </Typography>
+        )}
+      </Toolbar>
+    </AppBar>
   );
 };
 

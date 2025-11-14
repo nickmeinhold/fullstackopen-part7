@@ -2,6 +2,7 @@ import { useEffect, useRef } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { BrowserRouter as Router, Routes, Route, Link } from "react-router-dom";
+import { Container } from "@mui/material";
 import Blog from "./components/Blog";
 import BlogForm from "./components/BlogForm";
 import BlogView from "./components/BlogView";
@@ -98,23 +99,23 @@ const App = () => {
   );
 
   return (
-    <Router>
-      <div>
+    <Container>
+      <Router>
         <Notification />
         {!user ? (
           <LoginForm handleLogin={handleLogin} />
         ) : (
-          <div>
+          <>
             <Navigation user={user} handleLogout={handleLogout} />
             <Routes>
               <Route path="/" element={<Home />} />
               <Route path="/users" element={<Users />} />
               <Route path="/blogs/:id" element={<BlogView user={user} />} />
             </Routes>
-          </div>
+          </>
         )}
-      </div>
-    </Router>
+      </Router>
+    </Container>
   );
 };
 
