@@ -5,7 +5,7 @@ import BlogForm from "./components/BlogForm";
 import LoginForm from "./components/LoginForm";
 import Notification from "./components/Notification";
 import Togglable from "./components/Togglable";
-import { showNotification } from "./store/notificationSlice";
+import { useNotification } from "./contexts/NotificationContext";
 import { initializeUser, loginUser, logoutUser } from "./store/userSlice";
 import {
   initializeBlogs,
@@ -17,6 +17,7 @@ import {
 const App = () => {
   const blogFormRef = useRef(null);
   const dispatch = useDispatch();
+  const { setNotification } = useNotification();
   const user = useSelector((state) => state.user);
   const blogs = useSelector((state) => state.blogs);
 
@@ -36,31 +37,30 @@ const App = () => {
   const handleLogin = async ({ username, password }) => {
     try {
       const user = await dispatch(loginUser({ username, password })).unwrap();
-      dispatch(showNotification(`welcome back ${user.name || user.username}`));
+      setNotification(`welcome back ${user.name || user.username}`);
     } catch (error) {
-      dispatch(
-        showNotification(error.response?.data?.error || "login failed", "error")
+      setNotification(
+        error.response?.data?.error || "login failed",
+        "error"
       );
     }
   };
 
   const handleLogout = () => {
     dispatch(logoutUser());
-    dispatch(showNotification("logged out"));
+    setNotification("logged out");
   };
 
   const handleCreateBlog = async (blog) => {
     try {
       const created = await dispatch(createBlog(blog)).unwrap();
       const creator = created.user?.name || created.user?.username || "unknown";
-      dispatch(showNotification(`added '${created.title}' by ${creator}`));
+      setNotification(`added '${created.title}' by ${creator}`);
       blogFormRef.current?.toggleVisibility();
     } catch (error) {
-      dispatch(
-        showNotification(
-          error.response?.data?.error || "failed to create blog",
-          "error"
-        )
+      setNotification(
+        error.response?.data?.error || "failed to create blog",
+        "error"
       );
     }
   };
@@ -69,14 +69,12 @@ const App = () => {
     try {
       if (confirm("Are you sure you want to delete?")) {
         await dispatch(deleteBlog(blog.id)).unwrap();
-        dispatch(showNotification(`Deleted '${blog.title}'`));
+        setNotification(`Deleted '${blog.title}'`);
       }
     } catch (error) {
-      dispatch(
-        showNotification(
-          error.response?.data?.error || "failed to delete blog",
-          "error"
-        )
+      setNotification(
+        error.response?.data?.error || "failed to delete blog",
+        "error"
       );
     }
   };

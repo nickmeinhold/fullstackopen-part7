@@ -1,4 +1,4 @@
-import { useSelector } from "react-redux";
+import { useNotification } from "../contexts/NotificationContext";
 
 const baseStyle = {
   padding: "0.75rem 1rem",
@@ -9,11 +9,11 @@ const baseStyle = {
 };
 
 const Notification = () => {
-  const message = useSelector((state) => state.notification);
+  const { notification } = useNotification();
 
-  if (!message) return null;
+  if (!notification) return null;
 
-  const { text, type } = message;
+  const { text, type } = notification;
   const style = {
     ...baseStyle,
     color: type === "error" ? "#721c24" : "#155724",
