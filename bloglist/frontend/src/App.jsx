@@ -1,8 +1,10 @@
 import { useEffect, useRef } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
+import { BrowserRouter as Router, Routes, Route, Link } from "react-router-dom";
 import Blog from "./components/Blog";
 import BlogForm from "./components/BlogForm";
+import BlogView from "./components/BlogView";
 import LoginForm from "./components/LoginForm";
 import Notification from "./components/Notification";
 import Togglable from "./components/Togglable";
@@ -48,22 +50,6 @@ const App = () => {
     },
   });
 
-  // Mutation for deleting a blog
-  const deleteBlogMutation = useMutation({
-    mutationFn: blogService.remove,
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["blogs"] });
-    },
-  });
-
-  // Mutation for updating a blog
-  const updateBlogMutation = useMutation({
-    mutationFn: ({ id, blog }) => blogService.update(id, blog),
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["blogs"] });
-    },
-  });
-
   useEffect(() => {
     dispatch(initializeUser());
   }, [dispatch]);
@@ -86,24 +72,6 @@ const App = () => {
     createBlogMutation.mutate(blog);
   };
 
-  const handleDeleteBlog = async (blog) => {
-    if (confirm("Are you sure you want to delete?")) {
-      try {
-        await deleteBlogMutation.mutateAsync(blog.id);
-        setNotification(`Deleted '${blog.title}'`);
-      } catch (error) {
-        setNotification(
-          error.response?.data?.error || "failed to delete blog",
-          "error"
-        );
-      }
-    }
-  };
-
-  const handleUpdateBlog = (updated) => {
-    updateBlogMutation.mutate({ id: updated.id, blog: updated });
-  };
-
   if (isError) {
     return (
       <div>
@@ -113,38 +81,40 @@ const App = () => {
     );
   }
 
-  return (
+  const Home = () => (
     <div>
-      <Notification />
-      {!user ? (
-        <>
-          <LoginForm handleLogin={handleLogin} />
-        </>
+      <h2>blogs</h2>
+      <Togglable buttonLabel="create new blog" ref={blogFormRef}>
+        <BlogForm onCreate={handleCreateBlog} />
+      </Togglable>
+      {isLoading ? (
+        <div>Loading blogs...</div>
       ) : (
-        <div>
-          <h2>blogs</h2>
-          <p>
-            {user.name} logged in <button onClick={handleLogout}>logout</button>
-          </p>
-          <Togglable buttonLabel="create new blog" ref={blogFormRef}>
-            <BlogForm onCreate={handleCreateBlog} />
-          </Togglable>
-          {isLoading ? (
-            <div>Loading blogs...</div>
-          ) : (
-            sortedBlogs.map((blog) => (
-              <Blog
-                key={blog.id}
-                blog={blog}
-                user={user}
-                onUpdated={handleUpdateBlog}
-                handleDelete={handleDeleteBlog}
-              />
-            ))
-          )}
-        </div>
+        sortedBlogs.map((blog) => <Blog key={blog.id} blog={blog} />)
       )}
     </div>
+  );
+
+  return (
+    <Router>
+      <div>
+        <Notification />
+        {!user ? (
+          <LoginForm handleLogin={handleLogin} />
+        ) : (
+          <div>
+            <p>
+              {user.name} logged in{" "}
+              <button onClick={handleLogout}>logout</button>
+            </p>
+            <Routes>
+              <Route path="/" element={<Home />} />
+              <Route path="/blogs/:id" element={<BlogView user={user} />} />
+            </Routes>
+          </div>
+        )}
+      </div>
+    </Router>
   );
 };
 

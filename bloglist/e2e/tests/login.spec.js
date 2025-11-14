@@ -28,7 +28,7 @@ test.describe("Blog app", () => {
     await loginWith(page, "seeduser", "password123");
 
     // After successful login, check if we see the app content
-    await expect(page.getByText("blogs")).toBeVisible();
+    await expect(page.getByRole("heading", { name: "blogs" })).toBeVisible();
     await expect(page.getByText("Seed User logged in")).toBeVisible();
   });
 

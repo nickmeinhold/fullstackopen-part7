@@ -36,32 +36,25 @@ test.describe("When logged in", () => {
     // Check if success notification appears
     await expect(page.getByText(/added 'Test Blog Title'/)).toBeVisible();
 
-    // Check if the blog is displayed
+    // Check if the blog is displayed in the list
     await expect(page.getByText("Test Blog Title Test Author")).toBeVisible();
 
-    // Expand the blog using test-id based selector
-    await page.getByTestId("blog-card").getByTestId("toggle-details").click();
+    // Navigate to the blog view page
+    await page.getByTestId("blog-title-author").click();
 
-    // Get the initial likes count via test-id
-    const likesBeforeText =
-      (await page.getByTestId("likes-count").textContent()) || "0";
-    const initialLikes = parseInt(likesBeforeText.trim(), 10);
+    // Wait for blog view to load
+    await expect(
+      page.getByRole("heading", { name: /Test Blog Title/ })
+    ).toBeVisible();
 
-    // Click the like button via test-id
-    await page.getByTestId("like-button").click();
+    // Verify initial likes count is 0
+    await expect(page.getByText(/0 likes/)).toBeVisible();
 
-    // Wait for the likes count to update via test-id
-    await expect(page.getByTestId("likes-count")).toHaveText(
-      String(initialLikes + 1)
-    );
+    // Click the like button
+    await page.getByRole("button", { name: "like" }).click();
 
-    // Get the updated likes count
-    const likesAfterText =
-      (await page.getByTestId("likes-count").textContent()) || "0";
-    const updatedLikes = parseInt(likesAfterText.trim(), 10);
-
-    // Verify the likes increased by 1
-    expect(updatedLikes).toBe(initialLikes + 1);
+    // Wait for the likes count to update
+    await expect(page.getByText(/1 likes/)).toBeVisible();
   });
 
   test("a blog can be deleted by its creator", async ({ page }) => {
@@ -73,29 +66,38 @@ test.describe("When logged in", () => {
     await page.getByLabel("url").fill("http://example.com/delete-me");
     await page.getByRole("button", { name: "create" }).click();
 
-    // Wait for success notification
-    await expect(page.getByText(/added 'Blog to Delete'/)).toBeVisible();
+    // Wait for the blog to appear in the list
+    await expect(
+      page.getByRole("link", { name: /Blog to Delete/ })
+    ).toBeVisible();
 
-    // View the blog details
-    await page.getByTestId("blog-card").getByTestId("toggle-details").click();
+    // Navigate to the blog view page
+    await page.getByTestId("blog-title-author").click();
+
+    // Wait for blog view to load
+    await expect(
+      page.getByRole("heading", { name: /Blog to Delete/ })
+    ).toBeVisible();
 
     // Delete button should be visible
-    await expect(page.getByTestId("delete-button")).toBeVisible();
+    await expect(page.getByRole("button", { name: "remove" })).toBeVisible();
 
-    // Click delete (dismiss the confirm dialog)
+    // Click delete (accept the confirm dialog)
     page.on("dialog", (dialog) => {
       expect(dialog.type()).toBe("confirm");
-      expect(dialog.message()).toBe(`Are you sure you want to delete?`);
+      expect(dialog.message()).toContain("Remove blog");
       dialog.accept();
     });
 
-    await page.getByTestId("delete-button").click();
+    await page.getByRole("button", { name: "remove" }).click();
 
-    // Wait for the blog to be completely removed from the DOM
-    await page
-      .locator("div", { has: page.getByText(blogTitle) })
-      .first()
-      .waitFor({ state: "hidden" });
+    // Should navigate back to home page after deletion
+    await expect(page).toHaveURL("http://localhost:5173/");
+
+    // Blog should no longer be visible in the list (using more specific selector)
+    await expect(
+      page.getByTestId("blog-title-author").filter({ hasText: blogTitle })
+    ).not.toBeVisible();
   });
 
   test("only the blog creator can see the delete button", async ({
@@ -109,8 +111,10 @@ test.describe("When logged in", () => {
     await page.getByLabel("url").fill("http://example.com/other-user");
     await page.getByRole("button", { name: "create" }).click();
 
-    // Wait for success notification
-    await expect(page.getByText(/added 'Another User's Blog'/)).toBeVisible();
+    // Wait for the blog to appear in the list
+    await expect(
+      page.getByRole("link", { name: /Another User's Blog/ })
+    ).toBeVisible();
 
     // Create a second user
     await request.post("http://localhost:3001/api/users", {
@@ -129,13 +133,22 @@ test.describe("When logged in", () => {
     await page.goto("http://localhost:5173");
 
     // Wait for blogs to load
-    await expect(page.getByText(/Another User's Blog/)).toBeVisible();
+    await expect(
+      page.getByRole("link", { name: /Another User's Blog/ })
+    ).toBeVisible();
 
-    // View the blog details
-    await page.getByTestId("blog-card").getByTestId("toggle-details").click();
+    // Navigate to the blog view page
+    await page.getByTestId("blog-title-author").click();
+
+    // Wait for blog view to load
+    await expect(
+      page.getByRole("heading", { name: /Another User's Blog/ })
+    ).toBeVisible();
 
     // Delete button should NOT exist for non-creator
-    await expect(page.getByTestId("delete-button")).toHaveCount(0);
+    await expect(
+      page.getByRole("button", { name: "remove" })
+    ).not.toBeVisible();
   });
 
   test("blogs are ordered by likes with most liked first", async ({ page }) => {
@@ -172,86 +185,105 @@ test.describe("When logged in", () => {
     }
 
     // Like Blog Two 5 times
-    const blogTwoSection = page
+    const blogTwoLink = page
       .getByTestId("blog-card")
-      .filter({ has: page.getByText(/^Blog Two Author Two$/) });
-    await blogTwoSection.getByTestId("toggle-details").click();
+      .filter({ has: page.getByText(/^Blog Two Author Two$/) })
+      .getByTestId("blog-title-author");
+    await blogTwoLink.click();
+    await expect(page.getByRole("heading", { name: /Blog Two/ })).toBeVisible();
+
+    // Like 5 times
     for (let i = 0; i < 5; i++) {
-      await page.getByTestId("like-button").click();
-      await expect(page.getByTestId("likes-count")).toHaveText(String(i + 1));
+      const currentLikes = i;
+      const nextLikes = i + 1;
+      // Wait for current count to be visible
+      await expect(page.getByText(`${currentLikes} likes`)).toBeVisible({
+        timeout: 3000,
+      });
+      // Click like
+      await page.getByRole("button", { name: "like" }).click();
+      // Wait a moment for the request to process
+      await page.waitForTimeout(1000);
+      // Wait for the count to increment
+      await expect(page.getByText(`${nextLikes} likes`)).toBeVisible({
+        timeout: 15000,
+      });
     }
-    await blogTwoSection.getByTestId("toggle-details").click();
+    await page.goBack();
+
+    // Wait for home page to load
+    await expect(page.getByRole("heading", { name: "blogs" })).toBeVisible();
 
     // Like Blog Three 3 times
-    const blogThreeSection = page
+    const blogThreeLink = page
       .getByTestId("blog-card")
-      .filter({ has: page.getByText(/^Blog Three Author Three$/) });
-    await blogThreeSection.getByTestId("toggle-details").click();
+      .filter({ has: page.getByText(/^Blog Three Author Three$/) })
+      .getByTestId("blog-title-author");
+    await blogThreeLink.click();
+    await expect(
+      page.getByRole("heading", { name: /Blog Three/ })
+    ).toBeVisible();
+
+    // Like 3 times
     for (let i = 0; i < 3; i++) {
-      await page.getByTestId("like-button").click();
-      await expect(page.getByTestId("likes-count")).toHaveText(String(i + 1));
+      const currentLikes = i;
+      const nextLikes = i + 1;
+      await expect(page.getByText(`${currentLikes} likes`)).toBeVisible({
+        timeout: 3000,
+      });
+      await page.getByRole("button", { name: "like" }).click();
+      await page.waitForTimeout(1000);
+      await expect(page.getByText(`${nextLikes} likes`)).toBeVisible({
+        timeout: 15000,
+      });
     }
-    await blogThreeSection.getByTestId("toggle-details").click();
+    await page.goBack();
+
+    // Wait for home page to load
+    await expect(page.getByRole("heading", { name: "blogs" })).toBeVisible();
 
     // Like Blog One 1 time
-    const blogOneSection = page
+    // Wait for blogs to be visible after going back
+    await expect(
+      page.getByRole("link", { name: /Blog One/ })
+    ).toBeVisible({ timeout: 5000 });
+
+    const blogOneLink = page
       .getByTestId("blog-card")
-      .filter({ has: page.getByText(/^Blog One Author One$/) });
-    await blogOneSection.getByTestId("toggle-details").click();
-    await page.getByTestId("like-button").click();
-    await expect(page.getByTestId("likes-count")).toHaveText("1");
-    await blogOneSection.getByTestId("toggle-details").click();
+      .filter({ has: page.getByText(/^Blog One Author One$/) })
+      .getByTestId("blog-title-author");
+    await blogOneLink.click();
+    await expect(page.getByRole("heading", { name: /Blog One/ })).toBeVisible({
+      timeout: 10000,
+    });
 
-    // Reload the page to trigger fresh sorting in UI
-    await page.reload();
-    // Wait for blogs to load after reload
-    await expect(page.getByTestId("blog-card").first()).toBeVisible();
-    // Optional: ensure all three blogs are present
-    await expect(page.getByTestId("blog-card")).toHaveCount(3);
+    // Like once
+    await expect(page.getByText("0 likes")).toBeVisible({ timeout: 3000 });
+    await page.getByRole("button", { name: "like" }).click();
+    await expect(page.getByText("1 likes")).toBeVisible({ timeout: 15000 });
+    await page.goBack();
 
-    // Collect all blog cards (collapsed after reload)
+    // Verify blogs are ordered by likes (most liked first)
+    // The blogs should appear in this order: Blog Two (5), Blog Three (3), Blog One (1)
     const cards = page.getByTestId("blog-card");
-    const cardCount = await cards.count();
-    const collected = [];
+    await expect(cards).toHaveCount(3);
 
-    for (let i = 0; i < cardCount; i++) {
-      const card = cards.nth(i);
-      // Expand details to read likes
-      await card.getByTestId("toggle-details").click();
-      const titleEl = card.getByTestId("blog-title-author");
-      const likesEl = card.getByTestId("likes-count");
-      await expect(titleEl).toBeVisible();
-      await expect(likesEl).toBeVisible();
-      const titleAuthorText = (await titleEl.textContent()) || "";
-      const likesText = (await likesEl.textContent()) || "0";
-      const likes = parseInt(likesText.trim(), 10);
-      collected.push({ titleAuthorText: titleAuthorText.trim(), likes });
-      // Collapse again (optional, keeps UI tidy)
-      await card.getByTestId("toggle-details").click();
-    }
+    // Check the order by reading the text content
+    const firstBlog = await cards
+      .nth(0)
+      .getByTestId("blog-title-author")
+      .textContent();
+    const secondBlog = await cards
+      .nth(1)
+      .getByTestId("blog-title-author")
+      .textContent();
+    const thirdBlog = await cards
+      .nth(2)
+      .getByTestId("blog-title-author")
+      .textContent();
 
-    // Assert we collected expected titles
-    const titles = collected.map((c) => c.titleAuthorText);
-    expect(titles).toEqual(
-      expect.arrayContaining([
-        "Blog Two Author Two",
-        "Blog Three Author Three",
-        "Blog One Author One",
-      ])
-    );
-
-    // Sort a copy descending by likes and compare to original order
-    const byLikesDesc = [...collected].sort((a, b) => b.likes - a.likes);
-    expect(collected.map((c) => c.titleAuthorText)).toEqual(
-      byLikesDesc.map((c) => c.titleAuthorText)
-    );
-
-    // Explicit like count assertions for determinism
-    const lookup = Object.fromEntries(
-      collected.map((c) => [c.titleAuthorText, c.likes])
-    );
-    expect(lookup["Blog Two Author Two"]).toBe(5);
-    expect(lookup["Blog Three Author Three"]).toBe(3);
-    expect(lookup["Blog One Author One"]).toBe(1);
+    expect(firstBlog).toContain("Blog Two");
+    expect(secondBlog).toContain("Blog Three");
+    expect(thirdBlog).toContain("Blog One");
   });
 });
