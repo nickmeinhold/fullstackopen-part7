@@ -1,9 +1,11 @@
+import { useState } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import blogService from "../services/blogs";
 import { useNotification } from "../contexts/NotificationContext";
 
 const BlogView = ({ user }) => {
+  const [comment, setComment] = useState("");
   const { id } = useParams();
   const navigate = useNavigate();
   const queryClient = useQueryClient();
@@ -42,6 +44,22 @@ const BlogView = ({ user }) => {
     },
   });
 
+  const addCommentMutation = useMutation({
+    mutationFn: ({ id, comment }) => blogService.addComment(id, comment),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["blogs", id] });
+      queryClient.invalidateQueries({ queryKey: ["blogs"] });
+      setComment("");
+      setNotification("comment added");
+    },
+    onError: (error) => {
+      setNotification(
+        error.response?.data?.error || "failed to add comment",
+        "error"
+      );
+    },
+  });
+
   if (isLoading) {
     return <div>Loading...</div>;
   }
@@ -60,6 +78,13 @@ const BlogView = ({ user }) => {
   const handleDelete = () => {
     if (window.confirm(`Remove blog ${blog.title} by ${blog.author}?`)) {
       deleteBlogMutation.mutate(blog.id);
+    }
+  };
+
+  const handleCommentSubmit = (event) => {
+    event.preventDefault();
+    if (comment.trim()) {
+      addCommentMutation.mutate({ id: blog.id, comment: comment.trim() });
     }
   };
 
@@ -85,7 +110,24 @@ const BlogView = ({ user }) => {
         </div>
       )}
       <h3>comments</h3>
-      <p>Comments feature coming soon...</p>
+      <form onSubmit={handleCommentSubmit}>
+        <input
+          type="text"
+          value={comment}
+          onChange={(e) => setComment(e.target.value)}
+          placeholder="add a comment..."
+        />
+        <button type="submit">add comment</button>
+      </form>
+      {blog.comments && blog.comments.length > 0 ? (
+        <ul>
+          {blog.comments.map((comment, index) => (
+            <li key={index}>{comment}</li>
+          ))}
+        </ul>
+      ) : (
+        <p>No comments yet</p>
+      )}
     </div>
   );
 };
