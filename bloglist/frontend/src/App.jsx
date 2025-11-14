@@ -6,6 +6,7 @@ import Blog from "./components/Blog";
 import BlogForm from "./components/BlogForm";
 import BlogView from "./components/BlogView";
 import LoginForm from "./components/LoginForm";
+import Navigation from "./components/Navigation";
 import Notification from "./components/Notification";
 import Togglable from "./components/Togglable";
 import { useNotification } from "./contexts/NotificationContext";
@@ -103,10 +104,7 @@ const App = () => {
           <LoginForm handleLogin={handleLogin} />
         ) : (
           <div>
-            <p>
-              {user.name} logged in{" "}
-              <button onClick={handleLogout}>logout</button>
-            </p>
+            <Navigation user={user} handleLogout={handleLogout} />
             <Routes>
               <Route path="/" element={<Home />} />
               <Route path="/blogs/:id" element={<BlogView user={user} />} />
