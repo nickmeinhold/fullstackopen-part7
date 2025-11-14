@@ -2,7 +2,7 @@ import { useEffect, useRef } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { BrowserRouter as Router, Routes, Route, Link } from "react-router-dom";
-import { Container } from "@mui/material";
+import { Container, CircularProgress, Box, Typography } from "@mui/material";
 import Blog from "./components/Blog";
 import BlogForm from "./components/BlogForm";
 import BlogView from "./components/BlogView";
@@ -86,12 +86,23 @@ const App = () => {
 
   const Home = () => (
     <div>
-      <h2>blogs</h2>
+      <Typography variant="h4" component="h2" sx={{ marginTop: 2 }}>
+        blogs
+      </Typography>
       <Togglable buttonLabel="create new blog" ref={blogFormRef}>
         <BlogForm onCreate={handleCreateBlog} />
       </Togglable>
       {isLoading ? (
-        <div>Loading blogs...</div>
+        <Box
+          sx={{
+            display: "flex",
+            justifyContent: "center",
+            alignItems: "center",
+            minHeight: "200px",
+          }}
+        >
+          <CircularProgress />
+        </Box>
       ) : (
         sortedBlogs.map((blog) => <Blog key={blog.id} blog={blog} />)
       )}

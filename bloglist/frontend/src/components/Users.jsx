@@ -8,6 +8,8 @@ import {
   TableRow,
   Paper,
   Typography,
+  CircularProgress,
+  Box,
 } from "@mui/material";
 import usersService from "../services/users";
 
@@ -22,11 +24,26 @@ const Users = () => {
   });
 
   if (isLoading) {
-    return <div>Loading...</div>;
+    return (
+      <Box
+        sx={{
+          display: "flex",
+          justifyContent: "center",
+          alignItems: "center",
+          minHeight: "200px",
+        }}
+      >
+        <CircularProgress />
+      </Box>
+    );
   }
 
   if (isError) {
-    return <div>Error loading users</div>;
+    return (
+      <Typography variant="h6" color="error" sx={{ marginTop: 3 }}>
+        Error loading users
+      </Typography>
+    );
   }
 
   return (

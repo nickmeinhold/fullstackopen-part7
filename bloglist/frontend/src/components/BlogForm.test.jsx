@@ -9,10 +9,11 @@ test("<BlogForm /> calls onCreate with form data when submitted", async () => {
 
   render(<BlogForm onCreate={onCreate} />);
 
-  const titleInput = screen.getByLabelText("title");
-  const authorInput = screen.getByLabelText("author");
-  const urlInput = screen.getByLabelText("url");
-  const createButton = screen.getByText("create");
+  const inputs = screen.getAllByRole("textbox");
+  const titleInput = inputs[0];
+  const authorInput = inputs[1];
+  const urlInput = inputs[2];
+  const createButton = screen.getByRole("button", { name: "create" });
 
   await user.type(titleInput, "Test Blog");
   await user.type(authorInput, "Test Author");

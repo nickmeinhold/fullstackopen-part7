@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { TextField, Button, Box } from "@mui/material";
 
 const BlogForm = ({ onCreate }) => {
   const [title, setTitle] = useState("");
@@ -14,39 +15,41 @@ const BlogForm = ({ onCreate }) => {
   };
 
   return (
-    <form onSubmit={handleSubmit}>
-      <div>
-        <label>
-          title
-          <input
-            type="text"
-            value={title}
-            onChange={({ target }) => setTitle(target.value)}
-          />
-        </label>
-      </div>
-      <div>
-        <label>
-          author
-          <input
-            type="text"
-            value={author}
-            onChange={({ target }) => setAuthor(target.value)}
-          />
-        </label>
-      </div>
-      <div>
-        <label>
-          url
-          <input
-            type="url"
-            value={url}
-            onChange={({ target }) => setUrl(target.value)}
-          />
-        </label>
-      </div>
-      <button type="submit">create</button>
-    </form>
+    <Box component="form" onSubmit={handleSubmit} sx={{ marginY: 2 }}>
+      <TextField
+        fullWidth
+        label="title"
+        value={title}
+        onChange={({ target }) => setTitle(target.value)}
+        margin="normal"
+        required
+      />
+      <TextField
+        fullWidth
+        label="author"
+        value={author}
+        onChange={({ target }) => setAuthor(target.value)}
+        margin="normal"
+        required
+      />
+      <TextField
+        fullWidth
+        label="url"
+        type="url"
+        value={url}
+        onChange={({ target }) => setUrl(target.value)}
+        margin="normal"
+        required
+      />
+      <Button
+        type="submit"
+        variant="contained"
+        color="primary"
+        sx={{ marginTop: 2 }}
+      >
+        create
+      </Button>
+    </Box>
   );
 };
 

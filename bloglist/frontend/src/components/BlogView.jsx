@@ -12,6 +12,7 @@ import {
   ListItemText,
   IconButton,
   Paper,
+  CircularProgress,
 } from "@mui/material";
 import ThumbUpIcon from "@mui/icons-material/ThumbUp";
 import DeleteIcon from "@mui/icons-material/Delete";
@@ -75,11 +76,26 @@ const BlogView = ({ user }) => {
   });
 
   if (isLoading) {
-    return <div>Loading...</div>;
+    return (
+      <Box
+        sx={{
+          display: "flex",
+          justifyContent: "center",
+          alignItems: "center",
+          minHeight: "200px",
+        }}
+      >
+        <CircularProgress />
+      </Box>
+    );
   }
 
   if (isError || !blog) {
-    return <div>Blog not found</div>;
+    return (
+      <Typography variant="h6" color="error" sx={{ marginTop: 3 }}>
+        Blog not found
+      </Typography>
+    );
   }
 
   const handleLike = () => {

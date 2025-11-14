@@ -67,7 +67,7 @@ describe("BlogView component", () => {
       wrapper: createWrapper("123"),
     });
 
-    expect(screen.getByText("Loading...")).toBeInTheDocument();
+    expect(screen.getByRole("progressbar")).toBeInTheDocument();
   });
 
   test("renders blog details after loading", async () => {
@@ -241,9 +241,8 @@ describe("BlogView component", () => {
       ).toBeInTheDocument();
     });
 
-    expect(
-      screen.getByText(/Comments feature coming soon/)
-    ).toBeInTheDocument();
+    expect(screen.getByText(/No comments yet/)).toBeInTheDocument();
+    expect(screen.getByPlaceholderText("add a comment...")).toBeInTheDocument();
   });
 
   test("url link has correct attributes", async () => {

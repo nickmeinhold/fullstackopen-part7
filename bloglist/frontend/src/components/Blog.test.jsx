@@ -21,7 +21,8 @@ describe("Blog component", () => {
     );
 
     const link = screen.getByRole("link");
-    expect(link).toHaveTextContent("Testing React components Tester");
+    expect(screen.getByText("Testing React components")).toBeInTheDocument();
+    expect(screen.getByText("Tester")).toBeInTheDocument();
     expect(link).toHaveAttribute("href", "/blogs/abc123");
   });
 
