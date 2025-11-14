@@ -1,6 +1,20 @@
 import { useState } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
+import {
+  Typography,
+  Button,
+  Link,
+  Box,
+  TextField,
+  List,
+  ListItem,
+  ListItemText,
+  IconButton,
+  Paper,
+} from "@mui/material";
+import ThumbUpIcon from "@mui/icons-material/ThumbUp";
+import DeleteIcon from "@mui/icons-material/Delete";
 import blogService from "../services/blogs";
 import { useNotification } from "../contexts/NotificationContext";
 
@@ -91,44 +105,90 @@ const BlogView = ({ user }) => {
   const isCreator = user && blog.user && user.username === blog.user.username;
 
   return (
-    <div>
-      <h2>
-        {blog.title} {blog.author}
-      </h2>
-      <div>
-        <a href={blog.url} target="_blank" rel="noopener noreferrer">
-          {blog.url}
-        </a>
-      </div>
-      <div>
-        {blog.likes} likes <button onClick={handleLike}>like</button>
-      </div>
-      <div>added by {blog.user?.name || blog.user?.username || "unknown"}</div>
-      {isCreator && (
-        <div>
-          <button onClick={handleDelete}>remove</button>
-        </div>
-      )}
-      <h3>comments</h3>
-      <form onSubmit={handleCommentSubmit}>
-        <input
-          type="text"
+    <Box sx={{ marginTop: 3 }}>
+      <Typography variant="h4" component="h2" gutterBottom>
+        {blog.title} <em>{blog.author}</em>
+      </Typography>
+
+      <Paper sx={{ padding: 2, marginY: 2 }}>
+        <Box sx={{ marginY: 1 }}>
+          <Link
+            href={blog.url}
+            target="_blank"
+            rel="noopener noreferrer"
+            underline="hover"
+          >
+            {blog.url}
+          </Link>
+        </Box>
+
+        <Box sx={{ marginY: 2, display: "flex", alignItems: "center", gap: 1 }}>
+          <Typography variant="body1">{blog.likes} likes</Typography>
+          <Button
+            variant="contained"
+            size="small"
+            startIcon={<ThumbUpIcon />}
+            onClick={handleLike}
+          >
+            like
+          </Button>
+        </Box>
+
+        <Typography variant="body2" color="text.secondary" sx={{ marginY: 1 }}>
+          added by {blog.user?.name || blog.user?.username || "unknown"}
+        </Typography>
+
+        {isCreator && (
+          <Box sx={{ marginTop: 2 }}>
+            <Button
+              variant="outlined"
+              color="error"
+              startIcon={<DeleteIcon />}
+              onClick={handleDelete}
+            >
+              remove
+            </Button>
+          </Box>
+        )}
+      </Paper>
+
+      <Typography
+        variant="h5"
+        component="h3"
+        gutterBottom
+        sx={{ marginTop: 3 }}
+      >
+        comments
+      </Typography>
+
+      <Box component="form" onSubmit={handleCommentSubmit} sx={{ marginY: 2 }}>
+        <TextField
+          fullWidth
+          size="small"
           value={comment}
           onChange={(e) => setComment(e.target.value)}
           placeholder="add a comment..."
+          sx={{ marginBottom: 1 }}
         />
-        <button type="submit">add comment</button>
-      </form>
+        <Button type="submit" variant="contained" color="primary">
+          add comment
+        </Button>
+      </Box>
+
       {blog.comments && blog.comments.length > 0 ? (
-        <ul>
+        <List>
           {blog.comments.map((comment, index) => (
-            <li key={index}>{comment}</li>
+            <ListItem key={index} divider>
+              <ListItemText primary={comment} />
+            </ListItem>
           ))}
-        </ul>
+        </List>
       ) : (
-        <p>No comments yet</p>
+        <Typography variant="body2" color="text.secondary">
+          No comments yet
+        </Typography>
       )}
-    </div>
+    </Box>
   );
 };
 
