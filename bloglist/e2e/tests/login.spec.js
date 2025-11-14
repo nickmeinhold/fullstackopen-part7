@@ -42,6 +42,6 @@ test.describe("Blog app", () => {
     await loginButton.click();
 
     // After failed login, check if error message appears
-    await expect(page.getByText(/invalid username/i)).toBeVisible();
+    await expect(page.getByText(/login failed/i)).toBeVisible();
   });
 });
