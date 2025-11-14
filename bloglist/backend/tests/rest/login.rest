@@ -1,0 +1,11 @@
+### Get all users
+GET http://localhost:3001/api/users
+
+### Post a new login
+POST http://localhost:3001/api/login
+Content-Type: application/json
+
+{
+  "username": "Name",
+  "password": "password"
+}

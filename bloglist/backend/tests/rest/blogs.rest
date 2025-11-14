@@ -1,0 +1,22 @@
+### Get all blogs
+GET http://localhost:3001/api/blogs
+
+### Post a new blog
+POST http://localhost:3001/api/blogs
+Content-Type: application/json
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VybmFtZSI6Ik5hbWUiLCJpZCI6IjY5MTAzYTE1NDM3ZTBhYTAxZDBjYmI5NiIsImlhdCI6MTc2MjY3MTEzNH0.ABXyEZ-OMkzo8-rlYHH_8naAzO9qzGtJgudpQXqjEYM
+
+{
+  "title": "Test Blog",
+  "author": "Test Author",
+  "url": "http://example.com",
+  "likes": 0,
+  "user": {
+    "name": "Nick",
+    "username": "nick"
+  }
+}
+
+### Delete a blog
+DELETE http://localhost:3001/api/blogs/69104f886706438d0ee9ba89
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VybmFtZSI6Ik5hbWUiLCJpZCI6IjY5MTAzYTE1NDM3ZTBhYTAxZDBjYmI5NiIsImlhdCI6MTc2MjY3MTEzNH0.ABXyEZ-OMkzo8-rlYHH_8naAzO9qzGtJgudpQXqjEYM
