@@ -4,15 +4,23 @@ import { loginWith } from "./helpers";
 // Helper function to create a test blog
 const createTestBlog = async (page) => {
   await page.getByRole("button", { name: "create new blog" }).click();
-  await page.getByLabel("title").fill("React patterns");
-  await page.getByLabel("author").fill("Michael Chan");
-  await page.getByLabel("url").fill("https://reactpatterns.com/");
+  const textboxes = page.getByRole("textbox");
+  await textboxes.nth(0).fill("React patterns"); // title
+  await textboxes.nth(1).fill("Michael Chan"); // author
+  await page
+    .getByRole("textbox", { name: "url" })
+    .fill("https://reactpatterns.com/"); // url
   await page.getByRole("button", { name: "create" }).click();
 
-  // Wait for the blog to appear in the list with longer timeout
-  await expect(page.getByRole("link", { name: /React patterns/ })).toBeVisible({
-    timeout: 10000,
+  // Wait for success notification to appear and disappear
+  await expect(page.getByText(/added 'React patterns'/)).toBeVisible({
+    timeout: 5000,
   });
+
+  // Wait for the blog card to appear in the list
+  await expect(
+    page.getByTestId("blog-card").filter({ hasText: "React patterns" })
+  ).toBeVisible({ timeout: 10000 });
 };
 
 test.describe("Blog View", () => {
@@ -209,13 +217,14 @@ test.describe("Blog View", () => {
 
     // Create a second blog
     await page.getByRole("button", { name: "create new blog" }).click();
-    await page.getByLabel("title").fill("Go To Statement Considered Harmful");
-    await page.getByLabel("author").fill("Edsger W. Dijkstra");
+    const textboxes = page.getByRole("textbox");
+    await textboxes.nth(0).fill("Go To Statement Considered Harmful"); // title
+    await textboxes.nth(1).fill("Edsger W. Dijkstra"); // author
     await page
-      .getByLabel("url")
+      .getByRole("textbox", { name: "url" })
       .fill(
         "http://www.u.arizona.edu/~rubinson/copyright_violations/Go_To_Considered_Harmful.html"
-      );
+      ); // url
     await page.getByRole("button", { name: "create" }).click();
 
     // Wait for both blogs to be visible in the list

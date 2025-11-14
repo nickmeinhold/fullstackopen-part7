@@ -13,9 +13,11 @@ export async function loginWith(page, username, password) {
 
 export async function createBlog(page, { title, author, url }) {
   await page.getByRole("button", { name: "create new blog" }).click();
-  await page.getByLabel("title").fill(title);
-  await page.getByLabel("author").fill(author);
-  await page.getByLabel("url").fill(url);
+  // Material-UI TextFields - select by role
+  const textboxes = page.getByRole("textbox");
+  await textboxes.nth(0).fill(title); // title
+  await textboxes.nth(1).fill(author); // author
+  await page.getByRole("textbox", { name: "url" }).fill(url); // url has type="url"
   await page.getByRole("button", { name: "create" }).click();
 
   // Wait for the blog to appear in the list
