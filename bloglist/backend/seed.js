@@ -27,12 +27,27 @@ async function run() {
       url: "http://example.com/1",
       likes: 5,
       user: user._id,
+      comments: [
+        "This is a great post!",
+        "Very informative, thanks for sharing",
+        "Looking forward to more content like this",
+      ],
     },
     {
       title: "Second seeded blog",
       author: "Seeder",
       url: "http://example.com/2",
+      likes: 3,
       user: user._id,
+      comments: ["Interesting perspective", "Well written!"],
+    },
+    {
+      title: "React patterns",
+      author: "Michael Chan",
+      url: "https://reactpatterns.com/",
+      likes: 10,
+      user: user._id,
+      comments: [],
     },
   ];
 

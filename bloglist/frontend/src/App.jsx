@@ -9,6 +9,7 @@ import LoginForm from "./components/LoginForm";
 import Navigation from "./components/Navigation";
 import Notification from "./components/Notification";
 import Togglable from "./components/Togglable";
+import Users from "./components/Users";
 import { useNotification } from "./contexts/NotificationContext";
 import { initializeUser, loginUser, logoutUser } from "./store/userSlice";
 import blogService from "./services/blogs";
@@ -107,6 +108,7 @@ const App = () => {
             <Navigation user={user} handleLogout={handleLogout} />
             <Routes>
               <Route path="/" element={<Home />} />
+              <Route path="/users" element={<Users />} />
               <Route path="/blogs/:id" element={<BlogView user={user} />} />
             </Routes>
           </div>
